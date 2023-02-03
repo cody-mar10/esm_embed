@@ -4,7 +4,7 @@
 
 set -e
 ENVNAME="esm"
-TARBALL = "${ENVNAME}.tar.gz"
+TARBALL="${ENVNAME}.tar.gz"
 ENVDIR=$ENVNAME
 
 cp $STAGING/$USER/checkpoints.tar.gz .
