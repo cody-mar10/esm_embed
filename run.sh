@@ -1,6 +1,10 @@
 #!/bin/bash
 
 # simple executable for CHTC
+CHECKPOINT=$1
+OUTDIR=$2
+FASTA=$3
+
 
 set -e
 ENVNAME="esm"
@@ -9,20 +13,25 @@ ENVDIR=$ENVNAME
 STAGING="/staging/groups/anantharaman_group"
 USER="ccmartin6"
 
-cp $STAGING/$USER/checkpoints.tar.gz .
-tar -xzf checkpoints.tar.gz
+cp $STAGING/$USER/$CHECKPOINT .
+tar -xzf $CHECKPOINT
+rm $CHECKPOINT
+
+cp $STAGING/$USER/$FASTA .
 
 ##### CONDA
 cp $STAGING/conda_envs/$TARBALL .
 export PATH
 mkdir $ENVDIR
-tar -xzf $ENVNAME.tar.gz -C $ENVDIR
+tar -xzf $TARBALL -C $ENVDIR
 . $ENVDIR/bin/activate
+rm $TARBALL
 
-python3 esm_embed.py -i checkpoints/test_1M.faa -th .
+python3 esm_embed.py -i $FASTA -th . -b 1024 -o $OUTDIR
+rm $FASTA
 
 # TODO: generalize this
-tar -czf out.tar.gz out
-mv out.tar.gz $STAGING/$USER
+tar -czf $OUTDIR.tar.gz $OUTDIR
+mv $OUTDIR.tar.gz $STAGING/$USER
 
-rm -rf $ENVDIR $TARBALL checkpoints.tar.gz out
+rm -rf $ENVDIR $OUTDIR checkpoints

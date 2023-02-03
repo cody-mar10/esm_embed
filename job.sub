@@ -1,5 +1,6 @@
 universe = vanilla
 executable = run.sh
+arguments = $(checkpoint) $(outdir)
 output = $(Cluster)_$(Process).out
 
 transfer_input_files = esm_embed.py
@@ -8,9 +9,6 @@ when_to_transfer_output = ON_EXIT
 
 Requirements = (Target.HasCHTCStaging == true)
 
-# The conda environment will install cudatoolkit verison 11.1
-# This requirement ensures the execute node has a new enough driver to run it
-# Reference https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
 require_gpus = (DriverVersion >= 11.6)
 request_gpus = 1
 
@@ -19,9 +17,9 @@ request_gpus = 1
 
 request_cpus = 1
 request_memory = 20GB
-request_disk = 20GB
+request_disk = 50GB
 
 log = $(Cluster)_$(Process).log
 error = $(Cluster)_$(Process).err
 
-queue 1
+queue checkpoint,outdir from inputs.csv
