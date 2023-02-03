@@ -23,3 +23,5 @@ request_disk = 5GB
 
 log = $(Cluster)_$(Process).log
 error = $(Cluster)_$(Process).err
+
+queue 1
