@@ -48,6 +48,12 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "-o",
+        "--outdir",
+        default="out",
+        help="output directory (default: %(default)s)",
+    )
+    parser.add_argument(
         "-t",
         "--threads",
         default=30,
@@ -60,11 +66,13 @@ def parse_args() -> argparse.Namespace:
 
 def main(
     seqfile: str,
+    outdir: Path,
     model_name: str,
     batch_token_size: int,
     torch_hub: str,
     threads: int,
 ):
+    outdir.mkdir(exist_ok=True)
     torch.set_num_threads(threads)
     torch.hub.set_dir(torch_hub)
 
@@ -79,8 +87,8 @@ def main(
     seq_batches = esm.FastaBatchedDataset.from_file(seqfile)
     batch_indices = seq_batches.get_batch_indices(batch_token_size)
 
-    embed_output = Path(seqfile).with_suffix(".embeddings")
-    name_output = Path(seqfile).with_suffix(".name_order")
+    embed_output = outdir.joinpath(f"{Path(seqfile).stem}.embeddings.txt")
+    name_output = outdir.joinpath(f"{Path(seqfile).stem}.name_order.txt")
 
     with embed_output.open("ab") as efp, name_output.open("a") as nfp:
         for batch_idx in batch_indices:
@@ -109,6 +117,7 @@ if __name__ == "__main__":
     args = parse_args()
     main(
         seqfile=args.input,
+        outdir=Path(args.outdir),
         model_name=args.model,
         batch_token_size=args.batch_token_size,
         torch_hub=args.torch_hub,
