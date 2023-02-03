@@ -19,7 +19,7 @@ request_gpus = 1
 
 request_cpus = 1
 request_memory = 20GB
-request_disk = 10GB
+request_disk = 20GB
 
 log = $(Cluster)_$(Process).log
 error = $(Cluster)_$(Process).err
