@@ -6,11 +6,8 @@ set -e
 ENVNAME="esm"
 TARBALL="${ENVNAME}.tar.gz"
 ENVDIR=$ENVNAME
-
-echo $STAGING/$USER/checkpoints.tar.gz
-echo $STAGING/conda_envs/$TARBALL
-
-exit 0
+STAGING="/staging/groups/anantharaman_group"
+USER="ccmartin6"
 
 cp $STAGING/$USER/checkpoints.tar.gz .
 tar -xzf checkpoints.tar.gz
