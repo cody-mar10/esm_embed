@@ -1,6 +1,6 @@
 universe = vanilla
 executable = run.sh
-arguments = $(checkpoint) $(outdir)
+arguments = $(checkpoint) $(outdir) $(fasta)
 output = $(Cluster)_$(Process).out
 
 transfer_input_files = esm_embed.py
@@ -22,4 +22,4 @@ request_disk = 50GB
 log = $(Cluster)_$(Process).log
 error = $(Cluster)_$(Process).err
 
-queue checkpoint,outdir from inputs.csv
+queue checkpoint,outdir,fasta from inputs.csv

@@ -5,7 +5,6 @@ CHECKPOINT=$1
 OUTDIR=$2
 FASTA=$3
 
-
 set -e
 ENVNAME="esm"
 TARBALL="${ENVNAME}.tar.gz"
