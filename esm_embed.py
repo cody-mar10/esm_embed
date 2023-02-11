@@ -9,6 +9,10 @@ import esm
 
 MODELS = {
     "esm2_t48_15B": (esm.pretrained.esm2_t48_15B_UR50D, 48),
+    "esm2_t36_3B": (esm.pretrained.esm2_t36_3B_UR50D, 36),
+    "esm2_t33_650M": (esm.pretrained.esm2_t33_650M_UR50D, 33),
+    "esm2_t30_150M": (esm.pretrained.esm2_t30_150M_UR50D, 30),
+    "esm2_t12_35M": (esm.pretrained.esm2_t12_35M_UR50D, 12),
     "esm2_t6_8M": (esm.pretrained.esm2_t6_8M_UR50D, 6),
 }
 
@@ -108,6 +112,8 @@ def main(
                 seq_repr.append(token_repr[i, 1 : tokens_len - 1].mean(0))
 
             # save results
+            # TODO: should probably buffer this to decrease number of r/w
+            # or could just save everything on cpu all at once?
             np.savetxt(efp, torch.stack(seq_repr).numpy())
             for label in batch_labels:
                 nfp.write(f"{label}\n")

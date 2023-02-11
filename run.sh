@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # simple executable for CHTC
-CHECKPOINT=$1
+MODEL=$1
 OUTDIR=$2
 FASTA=$3
 
 set -e
+CHECKPOINT=${MODEL}.tar.gz
 ENVNAME="esm"
 TARBALL="${ENVNAME}.tar.gz"
 ENVDIR=$ENVNAME
@@ -26,7 +27,7 @@ tar -xzf $TARBALL -C $ENVDIR
 . $ENVDIR/bin/activate
 rm $TARBALL
 
-python3 esm_embed.py -i $FASTA -th . -b 1024 -o $OUTDIR
+python3 esm_embed.py -i $FASTA -th . -b 1024 -o $OUTDIR -m $MODEL
 rm $FASTA
 
 # TODO: generalize this
