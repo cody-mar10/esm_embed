@@ -104,7 +104,16 @@ def parse_args() -> argparse.Namespace:
 
 
 def read_data(file: str) -> ndarray:
-    X = pl.read_csv(file, sep=" ", has_header=False).to_numpy()
+    ext = file.rsplit(".", 1)[1]
+
+    if ext == "txt":
+        X = pl.read_csv(file, sep=" ", has_header=False).to_numpy()
+    elif ext == "parquet":
+        X = pl.read_parquet(file).to_numpy()
+    else:
+        raise RuntimeError(
+            f"Embeddings file format {ext} not allowed. You can only supply raw .txt or .parquet files."
+        )
     return StandardScaler().fit_transform(X)
 
 
