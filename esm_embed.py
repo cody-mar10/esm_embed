@@ -77,10 +77,13 @@ def main(
     threads: int,
 ):
     outdir.mkdir(exist_ok=True)
-    torch.set_num_threads(threads)
-    torch.hub.set_dir(torch_hub)
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+        torch.set_num_threads(threads)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    torch.hub.set_dir(torch_hub)
 
     model_loader, layers = MODELS[model_name]
     model, alphabet = model_loader()
