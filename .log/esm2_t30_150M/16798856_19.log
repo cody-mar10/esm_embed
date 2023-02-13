@@ -1,0 +1,53 @@
+000 (16798856.019.000) 2023-02-11 08:31:50 Job submitted from host: <128.105.244.191:9618?addrs=128.105.244.191-9618&alias=submit-1.chtc.wisc.edu&noUDP&sock=schedd_6485_bfc3>
+...
+040 (16798856.019.000) 2023-02-11 17:29:26 Started transferring input files
+	Transferring to host: <128.105.68.94:9618?addrs=128.105.68.94-9618+[2607-f388-2200-100-1270-fdff-fe74-cf0]-9618&alias=gpu2002.chtc.wisc.edu&noUDP&sock=slot1_2_292139_1a81_35>
+...
+040 (16798856.019.000) 2023-02-11 17:29:26 Finished transferring input files
+...
+001 (16798856.019.000) 2023-02-11 17:29:27 Job executing on host: <128.105.68.94:9618?addrs=128.105.68.94-9618+[2607-f388-2200-100-1270-fdff-fe74-cf0]-9618&alias=gpu2002.chtc.wisc.edu&noUDP&sock=startd_11669_8ab9>
+...
+006 (16798856.019.000) 2023-02-11 17:29:35 Image size of job updated: 38908
+	1  -  MemoryUsage of job (MB)
+	660  -  ResidentSetSize of job (KB)
+...
+006 (16798856.019.000) 2023-02-11 17:34:35 Image size of job updated: 11421564
+	1974  -  MemoryUsage of job (MB)
+	2020832  -  ResidentSetSize of job (KB)
+...
+006 (16798856.019.000) 2023-02-11 17:39:36 Image size of job updated: 11732520
+	1990  -  MemoryUsage of job (MB)
+	2036876  -  ResidentSetSize of job (KB)
+...
+006 (16798856.019.000) 2023-02-11 17:44:36 Image size of job updated: 17897648
+	1994  -  MemoryUsage of job (MB)
+	2041620  -  ResidentSetSize of job (KB)
+...
+006 (16798856.019.000) 2023-02-11 17:46:52 Image size of job updated: 66269668
+	1994  -  MemoryUsage of job (MB)
+	2041620  -  ResidentSetSize of job (KB)
+...
+040 (16798856.019.000) 2023-02-11 17:47:05 Started transferring output files
+...
+040 (16798856.019.000) 2023-02-11 17:47:06 Finished transferring output files
+...
+005 (16798856.019.000) 2023-02-11 17:47:07 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:14:09, Sys 0 00:00:20  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:14:09, Sys 0 00:00:20  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	206  -  Run Bytes Sent By Job
+	4698  -  Run Bytes Received By Job
+	206  -  Total Bytes Sent By Job
+	4698  -  Total Bytes Received By Job
+	Partitionable Resources :       Usage  Request Allocated Assigned
+	   Cpus                 :        1.00        1         1 
+	   Disk (KB)            : 10840630    52428800  60626558 
+	   Gpus (Average)       :                    1         1 "GPU-74a71a79"
+	   GpusMemory (MB)      :     4959                       
+	   IoHeavy              :                              0 
+	   Memory (MB)          :     1994       20480     20480 
+
+	Job terminated of its own accord at 2023-02-11T23:46:52Z with exit-code 0.
+...
