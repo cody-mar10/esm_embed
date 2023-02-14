@@ -13,11 +13,11 @@ require_gpus = (DriverVersion >= 11.6)
 request_gpus = 1
 
 +WantGPULab = true
-+GPUJobLength = "short"
++GPUJobLength = "medium"
 
 request_cpus = 1
 request_memory = 20GB
-request_disk = 65GB
+request_disk = 110GB
 
 log = $(Cluster)_$(Process).log
 error = $(Cluster)_$(Process).err
