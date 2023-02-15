@@ -13,7 +13,7 @@ require_gpus = (DriverVersion >= 11.6)
 request_gpus = 1
 
 +WantGPULab = true
-+GPUJobLength = "medium"
++GPUJobLength = "long"
 
 request_cpus = 1
 request_memory = 20GB
