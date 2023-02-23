@@ -41,6 +41,11 @@ def parse_args() -> argparse.Namespace:
         default=15,
         help="max number of threads to use (default: %(default)s)",
     )
+    parser.add_argument(
+        "--no-stand",
+        action="store_true",
+        help="use to skip the standardization step before dimensionality reduction (default: %(default)s)",
+    )
 
     pca_args.add_argument(
         "-c",
@@ -77,6 +82,14 @@ def parse_args() -> argparse.Namespace:
         default="euclidean",
         help="distance metric (default: %(default)s) [choices: %(choices)s]",
     )
+    umap_args.add_argument(
+        "-u",
+        "--umap-components",
+        metavar="COMP",
+        type=int,
+        default=2,
+        help="number of UMAP components (default: %(default)s) [choices: %(choices)s]",
+    )
 
     hdbscan_args.add_argument(
         "-e",
@@ -103,7 +116,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def read_data(file: str) -> ndarray:
+def read_data(file: str, no_stand: bool) -> ndarray:
     ext = file.rsplit(".", 1)[1]
 
     if ext == "txt":
@@ -114,7 +127,7 @@ def read_data(file: str) -> ndarray:
         raise RuntimeError(
             f"Embeddings file format {ext} not allowed. You can only supply raw .txt or .parquet files."
         )
-    return StandardScaler().fit_transform(X)
+    return X if no_stand else StandardScaler().fit_transform(X)
 
 
 def dimred(
@@ -123,6 +136,7 @@ def dimred(
     threads: int,
     int_components: int,
     n_neighbors: int,
+    umap_components: int,
     dens_lambda: float,
     metric: str,
     no_pca: bool,
@@ -130,6 +144,7 @@ def dimred(
     pca = PCA(n_components=int_components, random_state=SEED)
     umapper = umap.UMAP(
         n_neighbors=n_neighbors,
+        n_components=umap_components,
         densmap=True,
         dens_lambda=dens_lambda,
         metric=metric,
@@ -159,10 +174,12 @@ def cluster(
 def main(
     embeddingsfile: str,
     namesfile: str,
+    no_stand: bool,
     output: str,
     threads: int,
     n_components: int,
     n_neighbors: int,
+    umap_components: int,
     dens_lambda: float,
     metric: str,
     min_cluster_size: int,
@@ -172,18 +189,26 @@ def main(
 ):
     numba.set_num_threads(threads)
     controller = ThreadpoolController()
-    X = read_data(embeddingsfile)
+    X = read_data(embeddingsfile, no_stand)
     names = pd.read_csv(namesfile, names=["genome"])
 
     X = dimred(
-        X, controller, threads, n_components, n_neighbors, dens_lambda, metric, no_pca
+        X,
+        controller,
+        threads,
+        n_components,
+        n_neighbors,
+        umap_components,
+        dens_lambda,
+        metric,
+        no_pca,
     )
     clusters = cluster(
         X, min_cluster_size, min_samples, cluster_selection_epsilon
     ).labels_
 
     (
-        pd.DataFrame(X, columns=["UMAP1", "UMAP2"])
+        pd.DataFrame(X, columns=[f"UMAP{i+1}" for i in range(X.shape[1])])
         .assign(cluster=clusters)
         .astype({"cluster": "category"})
         .merge(names, left_index=True, right_index=True)
@@ -202,10 +227,12 @@ if __name__ == "__main__":
     main(
         embeddingsfile=args.input,
         namesfile=args.names,
+        no_stand=args.no_stand,
         output=args.output,
         threads=threads,
         n_components=args.n_components,
         n_neighbors=args.n_neighbors,
+        umap_components=args.umap_components,
         dens_lambda=args.density_lambda,
         metric=args.distance_metric,
         min_cluster_size=args.min_cluster_size,
