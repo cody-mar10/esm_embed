@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import os
+from dataclasses import dataclass
+from pathlib import Path
 
 import hdbscan
 import numba
@@ -15,7 +17,41 @@ from typing import cast
 SEED = 111
 
 
-def parse_args() -> argparse.Namespace:
+@dataclass
+class PcaArgs:
+    n_components: int
+    no_pca: bool
+
+
+@dataclass
+class UmapArgs:
+    n_neighbors: int
+    dens_lambda: float
+    metric: str
+    n_components: int
+
+
+@dataclass
+class HdbscanArgs:
+    eps: float
+    min_cluster_size: int
+    min_samples: int
+
+
+@dataclass
+class Args:
+    input: Path
+    names: Path
+    output: Path
+    protein: bool
+    threads: int
+    no_stand: bool
+    pca_args: PcaArgs
+    umap_args: UmapArgs
+    hdbscan_args: HdbscanArgs
+
+
+def parse_args() -> Args:
     parser = argparse.ArgumentParser(
         description="generate 2D genome embeddings from ESM2 genome-pooled embeddings"
     )
@@ -24,19 +60,34 @@ def parse_args() -> argparse.Namespace:
     umap_args = parser.add_argument_group("UMAP ARGS")
     hdbscan_args = parser.add_argument_group("HDBSCAN ARGS")
 
-    parser.add_argument("-i", "--input", required=True, help="input genome embeddings")
     parser.add_argument(
-        "-n", "--names", required=True, help="genome names associated with embeddings"
+        "-i",
+        "--input",
+        metavar="FILE",
+        required=True,
+        type=Path,
+        help="input genome embeddings",
+    )
+    parser.add_argument(
+        "-n",
+        "--names",
+        metavar="FILE",
+        required=True,
+        type=Path,
+        help="genome names associated with embeddings",
     )
     parser.add_argument(
         "-o",
         "--output",
+        metavar="FILE",
         default="clusters.tsv",
+        type=Path,
         help="output table name (default: %(default)s)",
     )
     parser.add_argument(
         "-t",
         "--threads",
+        metavar="INT",
         type=int,
         default=15,
         help="max number of threads to use (default: %(default)s)",
@@ -46,10 +97,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="use to skip the standardization step before dimensionality reduction (default: %(default)s)",
     )
+    parser.add_argument(
+        "--protein",
+        action="store_true",
+        help="use if working with protein embeddings instead of genome embeddings(default: %(default)s)",
+    )
 
     pca_args.add_argument(
         "-c",
         "--n-components",
+        metavar="INT",
         type=int,
         default=20,
         help="number of PCs to chose -- good strategy is to choose as few as needed to account for 90%% of variation (default: %(default)s)",
@@ -63,6 +120,7 @@ def parse_args() -> argparse.Namespace:
     umap_args.add_argument(
         "-nn",
         "--n-neighbors",
+        metavar="INT",
         type=int,
         default=15,
         help="number of neighbors for UMAP kNN graph (default: %(default)s)",
@@ -70,6 +128,7 @@ def parse_args() -> argparse.Namespace:
     umap_args.add_argument(
         "-d",
         "--density-lambda",
+        metavar="FLOAT",
         type=float,
         default=1.0,
         help="density-regularized UMAP regularization coefficient (default: %(default)s)",
@@ -85,15 +144,16 @@ def parse_args() -> argparse.Namespace:
     umap_args.add_argument(
         "-u",
         "--umap-components",
-        metavar="COMP",
+        metavar="INT",
         type=int,
         default=2,
-        help="number of UMAP components (default: %(default)s) [choices: %(choices)s]",
+        help="number of UMAP components (default: %(default)s)",
     )
 
     hdbscan_args.add_argument(
         "-e",
         "--eps",
+        metavar="FLOAT",
         type=float,
         default=0.0,
         help="DBSCAN eps parameter / hDBSCAN cluster_selection_epsilon (default: %(default)s)",
@@ -101,6 +161,7 @@ def parse_args() -> argparse.Namespace:
     hdbscan_args.add_argument(
         "-mc",
         "--min-cluster-size",
+        metavar="INT",
         type=int,
         default=2,
         help="min number of points to define a cluster (default: %(default)s)",
@@ -108,16 +169,44 @@ def parse_args() -> argparse.Namespace:
     hdbscan_args.add_argument(
         "-ms",
         "--min-samples",
+        metavar="INT",
         type=int,
         default=1,
         help="min number of neighbors to a point (default: %(default)s)",
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    pca_args = PcaArgs(n_components=args.n_components, no_pca=args.no_pca)
+    umap_args = UmapArgs(
+        n_neighbors=args.n_neighbors,
+        dens_lambda=args.density_lambda,
+        metric=args.distance_metric,
+        n_components=args.umap_components,
+    )
+    hdbscan_args = HdbscanArgs(
+        eps=args.eps,
+        min_cluster_size=args.min_cluster_size,
+        min_samples=args.min_samples,
+    )
+
+    return Args(
+        input=args.input,
+        names=args.names,
+        output=args.output,
+        protein=args.protein,
+        threads=args.threads,
+        no_stand=args.no_stand,
+        pca_args=pca_args,
+        umap_args=umap_args,
+        hdbscan_args=hdbscan_args,
+    )
 
 
-def read_data(file: str, no_stand: bool) -> ndarray:
-    ext = file.rsplit(".", 1)[1]
+def read_data(file: Path, no_stand: bool) -> ndarray:
+    import polars as pl
+
+    ext = file.suffix.lstrip(".")
 
     if ext == "txt":
         X = pl.read_csv(file, sep=" ", has_header=False).to_numpy()
@@ -140,6 +229,7 @@ def dimred(
     dens_lambda: float,
     metric: str,
     no_pca: bool,
+    low_memory: bool,
 ) -> ndarray:
     pca = PCA(n_components=int_components, random_state=SEED)
     umapper = umap.UMAP(
@@ -149,6 +239,7 @@ def dimred(
         dens_lambda=dens_lambda,
         metric=metric,
         random_state=SEED,
+        low_memory=low_memory,
     )
 
     with controller.limit(limits=threads):
@@ -171,40 +262,38 @@ def cluster(
     return clusterer.fit(X)
 
 
-def main(
-    embeddingsfile: str,
-    namesfile: str,
-    no_stand: bool,
-    output: str,
-    threads: int,
-    n_components: int,
-    n_neighbors: int,
-    umap_components: int,
-    dens_lambda: float,
-    metric: str,
-    min_cluster_size: int,
-    min_samples: int,
-    cluster_selection_epsilon: float,
-    no_pca: bool,
-):
+def main():
+    args = parse_args()
+    threads = args.threads
+    os.environ["POLARS_MAX_THREADS"] = str(threads)
     numba.set_num_threads(threads)
     controller = ThreadpoolController()
-    X = read_data(embeddingsfile, no_stand)
-    names = pd.read_csv(namesfile, names=["genome"])
+
+    X = read_data(args.input, args.no_stand)
+    if args.protein:
+        low_memory = True
+        names = pd.read_csv(args.names, names=["protein"])
+    else:
+        low_memory = False
+        names = pd.read_csv(args.names, names=["genome"])
 
     X = dimred(
         X,
         controller,
         threads,
-        n_components,
-        n_neighbors,
-        umap_components,
-        dens_lambda,
-        metric,
-        no_pca,
+        args.pca_args.n_components,
+        args.umap_args.n_neighbors,
+        args.umap_args.n_components,
+        args.umap_args.dens_lambda,
+        args.umap_args.metric,
+        args.pca_args.no_pca,
+        low_memory,
     )
     clusters = cluster(
-        X, min_cluster_size, min_samples, cluster_selection_epsilon
+        X,
+        args.hdbscan_args.min_cluster_size,
+        args.hdbscan_args.min_samples,
+        args.hdbscan_args.eps,
     ).labels_
 
     (
@@ -212,31 +301,9 @@ def main(
         .assign(cluster=clusters)
         .astype({"cluster": "category"})
         .merge(names, left_index=True, right_index=True)
-        .to_csv(output, sep="\t", index=False)
+        .to_csv(args.output, sep="\t", index=False)
     )
 
 
 if __name__ == "__main__":
-    args = parse_args()
-
-    threads = args.threads
-
-    os.environ["POLARS_MAX_THREADS"] = str(threads)
-    import polars as pl
-
-    main(
-        embeddingsfile=args.input,
-        namesfile=args.names,
-        no_stand=args.no_stand,
-        output=args.output,
-        threads=threads,
-        n_components=args.n_components,
-        n_neighbors=args.n_neighbors,
-        umap_components=args.umap_components,
-        dens_lambda=args.density_lambda,
-        metric=args.distance_metric,
-        min_cluster_size=args.min_cluster_size,
-        min_samples=args.min_samples,
-        cluster_selection_epsilon=args.eps,
-        no_pca=args.no_pca,
-    )
+    main()
