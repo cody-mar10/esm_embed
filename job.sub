@@ -2,8 +2,8 @@ universe = vanilla
 executable = run.sh
 arguments = $(checkpoint) $(outdir) $(fasta)
 output = $(Cluster)_$(Process).out
+get_env = STAGING, USER
 
-transfer_input_files = esm_embed.py
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
@@ -13,11 +13,11 @@ require_gpus = (DriverVersion >= 11.6)
 request_gpus = 1
 
 +WantGPULab = true
-+GPUJobLength = "long"
++GPUJobLength = "short"
 
 request_cpus = 1
 request_memory = 20GB
-request_disk = 110GB
+request_disk = 50GB
 
 log = $(Cluster)_$(Process).log
 error = $(Cluster)_$(Process).err
