@@ -138,8 +138,15 @@ def main():
     if args.accelerator == "cpu":
         torch.set_num_threads(args.devices)
         parallelism_kwargs = {"devices": 1}
+    elif args.accelerator == "gpu":
+        n_devices = torch.cuda.device_count()
+        if args.devices > n_devices:
+            raise ValueError(
+                f"Not enough gpus available. Requested: {args.devices}. Available: {n_devices}"
+            )
+        parallelism_kwargs = {"devices": list(range(args.devices))}
     else:
-        parallelism_kwargs = {"devices": args.devices}
+        parallelism_kwargs = {"devices": "auto"}
 
     trainer = pl.Trainer(
         enable_checkpointing=False,
