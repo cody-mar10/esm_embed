@@ -8,10 +8,11 @@ from typing import Literal
 import esm
 import pytorch_lightning as pl
 import torch
+from pytorch_lightning.accelerators import find_usable_cuda_devices
 from torch.utils.data import DataLoader
 
-from esm_embed import lightning
-from esm_embed.lightning.model import MODELS, MODELVALUES
+from esm_embed import arch
+from esm_embed.arch.model import MODELS, MODELVALUES
 
 
 @dataclass
@@ -119,27 +120,27 @@ def main():
     torch.hub.set_dir(args.torch_hub)
     pl.seed_everything(111)
 
-    model = lightning.model.ESM2.from_model_name(args.model)
-    data = lightning.data.SequenceDataset(
+    model = arch.model.ESM2.from_model_name(args.model)
+    data = arch.data.SequenceDataset(
         data=esm.FastaBatchedDataset.from_file(args.input),
         alphabet=model.alphabet,
         batch_size=args.batch_size,
     )
-    writer = lightning.writer.PredictionWriter(outdir=args.outdir)
+    writer = arch.writer.PredictionWriter(outdir=args.outdir)
     dataloader = DataLoader(
         dataset=data,
         # dataset is already pre-batched
         batch_size=1,
         shuffle=False,
         num_workers=0,
-        collate_fn=lightning.data.collate_token_batches,
+        collate_fn=arch.data.collate_token_batches,
     )
 
     if args.accelerator == "cpu":
         torch.set_num_threads(args.devices)
         parallelism_kwargs = {"devices": 1}
     elif args.accelerator == "gpu":
-        parallelism_kwargs = {"devices": args.devices}
+        parallelism_kwargs = {"devices": find_usable_cuda_devices(args.devices)}
     else:
         parallelism_kwargs = {"devices": "auto"}
 
@@ -150,9 +151,6 @@ def main():
         logger=False,
         **parallelism_kwargs,
     )
-
-    print(trainer.num_devices, trainer.device_ids)
-    exit()
 
     trainer.predict(model=model, dataloaders=dataloader, return_predictions=False)
 
