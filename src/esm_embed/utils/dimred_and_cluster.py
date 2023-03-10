@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 import argparse
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
 
+import h5py
 import hdbscan
 import numba
 import umap
 import pandas as pd
-from numpy import ndarray
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from threadpoolctl import ThreadpoolController
@@ -41,14 +43,25 @@ class HdbscanArgs:
 @dataclass
 class Args:
     input: Path
-    names: Path
+    model: str
     output: Path
+    log: Path
     protein: bool
     threads: int
     no_stand: bool
     pca_args: PcaArgs
     umap_args: UmapArgs
     hdbscan_args: HdbscanArgs
+
+
+MODELS = {
+    "esm2_t48_15B",
+    "esm2_t36_3B",
+    "esm2_t33_650M",
+    "esm2_t30_150M",
+    "esm2_t12_35M",
+    "esm2_t6_8M",
+}
 
 
 def parse_args() -> Args:
@@ -66,15 +79,15 @@ def parse_args() -> Args:
         metavar="FILE",
         required=True,
         type=Path,
-        help="input genome embeddings",
+        help="hdf5 embeddings file",
     )
     parser.add_argument(
-        "-n",
-        "--names",
-        metavar="FILE",
-        required=True,
-        type=Path,
-        help="genome names associated with embeddings",
+        "-m",
+        "--model",
+        metavar="MODEL",
+        default="esm2_t33_650M",
+        choices=MODELS,
+        help="esm model to use (default: %(default)s) [choices: %(choices)s]",
     )
     parser.add_argument(
         "-o",
@@ -83,6 +96,14 @@ def parse_args() -> Args:
         default="clusters.tsv",
         type=Path,
         help="output table name (default: %(default)s)",
+    )
+    parser.add_argument(
+        "-l",
+        "--log",
+        metavar="FILE",
+        default="dimred.log",
+        type=Path,
+        help="log file name (default: %(default)s)",
     )
     parser.add_argument(
         "-t",
@@ -134,7 +155,7 @@ def parse_args() -> Args:
         help="density-regularized UMAP regularization coefficient (default: %(default)s)",
     )
     umap_args.add_argument(
-        "-m",
+        "-dm",
         "--distance-metric",
         metavar="METRIC",
         choices={"euclidean", "manhattan", "correlation", "cosine", "chebyshev"},
@@ -192,8 +213,9 @@ def parse_args() -> Args:
 
     return Args(
         input=args.input,
-        names=args.names,
+        model=args.model,
         output=args.output,
+        log=args.log,
         protein=args.protein,
         threads=args.threads,
         no_stand=args.no_stand,
@@ -203,8 +225,12 @@ def parse_args() -> Args:
     )
 
 
-def read_data(file: Path, no_stand: bool) -> ndarray:
+def read_data(file: Path, no_stand: bool, threads: int) -> np.ndarray:
+    # DEPRECATED
+    os.environ["POLARS_MAX_THREADS"] = str(threads)
     import polars as pl
+
+    logging.debug(f"Polars using {pl.threadpool_size()} threads")
 
     ext = file.suffix.lstrip(".")
 
@@ -220,7 +246,7 @@ def read_data(file: Path, no_stand: bool) -> ndarray:
 
 
 def dimred(
-    X: ndarray,
+    X: h5py.Dataset,
     controller: ThreadpoolController,
     threads: int,
     int_components: int,
@@ -230,7 +256,7 @@ def dimred(
     metric: str,
     no_pca: bool,
     low_memory: bool,
-) -> ndarray:
+) -> np.ndarray:
     pca = PCA(n_components=int_components, random_state=SEED)
     umapper = umap.UMAP(
         n_neighbors=n_neighbors,
@@ -244,12 +270,14 @@ def dimred(
 
     with controller.limit(limits=threads):
         if not no_pca:
+            logging.info("Running PCA")
             X = pca.fit_transform(X)
-        return cast(ndarray, umapper.fit_transform(X))
+        logging.info("Running UMAP")
+        return cast(np.ndarray, umapper.fit_transform(X))
 
 
 def cluster(
-    X: ndarray,
+    X: np.ndarray,
     min_cluster_size: int,
     min_samples: int,
     cluster_selection_epsilon: float,
@@ -259,50 +287,80 @@ def cluster(
         min_samples=min_samples,
         cluster_selection_epsilon=cluster_selection_epsilon,
     )
+    logging.info("Running clustering with HDBSCAN")
     return clusterer.fit(X)
 
 
 def main():
     args = parse_args()
+    logging.basicConfig(
+        filename=args.log,
+        level=logging.INFO,
+        format="[%(asctime)s] %(levelname)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    logging.info(f"Arguments: {args}")
+
     threads = args.threads
-    os.environ["POLARS_MAX_THREADS"] = str(threads)
     numba.set_num_threads(threads)
     controller = ThreadpoolController()
 
-    X = read_data(args.input, args.no_stand)
+    logging.info(f"Reading {args.input} with {threads} threads")
+
     if args.protein:
         low_memory = True
-        names = pd.read_csv(args.names, names=["protein"])
+        data_type = "protein"
     else:
         low_memory = False
-        names = pd.read_csv(args.names, names=["genome"])
+        data_type = "genome"
 
-    X = dimred(
-        X,
-        controller,
-        threads,
-        args.pca_args.n_components,
-        args.umap_args.n_neighbors,
-        args.umap_args.n_components,
-        args.umap_args.dens_lambda,
-        args.umap_args.metric,
-        args.pca_args.no_pca,
-        low_memory,
-    )
-    clusters = cluster(
-        X,
-        args.hdbscan_args.min_cluster_size,
-        args.hdbscan_args.min_samples,
-        args.hdbscan_args.eps,
-    ).labels_
+    base = args.input.stem.split(".")[0]
+    embed_hdf5_key = f"{base}/embeddings/{args.model}/{data_type}"
+    names_hdf5_key = f"{base}/names/{data_type}"
+    with h5py.File(args.input) as h5fp:
+        logging.info(f"Reading {embed_hdf5_key} from {args.input}")
+        if args.no_stand:
+            X = h5fp[embed_hdf5_key]
+        else:
+            with controller.limit(limits=threads):
+                X = StandardScaler().fit_transform(h5fp[embed_hdf5_key])
 
-    (
-        pd.DataFrame(X, columns=[f"UMAP{i+1}" for i in range(X.shape[1])])
-        .assign(cluster=clusters)
-        .astype({"cluster": "category"})
-        .merge(names, left_index=True, right_index=True)
-        .to_csv(args.output, sep="\t", index=False)
-    )
+        logging.info(f"Reading {names_hdf5_key} from {args.input}")
+        names = pd.DataFrame(
+            np.array(h5fp[names_hdf5_key]).astype(str), columns=[data_type]
+        )
+
+        logging.info("Performing dimensionality reduction.")
+        X = dimred(
+            X,
+            controller,
+            threads,
+            args.pca_args.n_components,
+            args.umap_args.n_neighbors,
+            args.umap_args.n_components,
+            args.umap_args.dens_lambda,
+            args.umap_args.metric,
+            args.pca_args.no_pca,
+            low_memory,
+        )
+        clusters = cluster(
+            X,
+            args.hdbscan_args.min_cluster_size,
+            args.hdbscan_args.min_samples,
+            args.hdbscan_args.eps,
+        ).labels_
+
+        outdir = args.input.parent.joinpath(f"{args.model}_results")
+        output = outdir.joinpath(args.output)
+        logging.info(f"Saving output to {output}")
+        (
+            pd.DataFrame(X, columns=[f"UMAP{i+1}" for i in range(X.shape[1])])
+            .assign(cluster=clusters)
+            .astype({"cluster": "category"})
+            .merge(names, left_index=True, right_index=True)
+            .to_csv(args.output, sep="\t", index=False)
+        )
 
 
 if __name__ == "__main__":
