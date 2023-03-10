@@ -139,12 +139,7 @@ def main():
         torch.set_num_threads(args.devices)
         parallelism_kwargs = {"devices": 1}
     elif args.accelerator == "gpu":
-        n_devices = torch.cuda.device_count()
-        if args.devices > n_devices:
-            raise ValueError(
-                f"Not enough gpus available. Requested: {args.devices}. Available: {n_devices}"
-            )
-        parallelism_kwargs = {"devices": list(range(args.devices))}
+        parallelism_kwargs = {"devices": args.devices}
     else:
         parallelism_kwargs = {"devices": "auto"}
 
@@ -155,6 +150,9 @@ def main():
         logger=False,
         **parallelism_kwargs,
     )
+
+    print(trainer.num_devices, trainer.device_ids)
+    exit()
 
     trainer.predict(model=model, dataloaders=dataloader, return_predictions=False)
 
