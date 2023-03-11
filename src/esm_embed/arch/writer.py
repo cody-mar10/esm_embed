@@ -3,11 +3,11 @@ from shutil import copyfileobj, rmtree
 from typing import Callable, Literal, Optional
 
 import numpy as np
-import pytorch_lightning as pl
+import lightning as L
 import tables as tb
 import torch
 from numpy.typing import NDArray
-from pytorch_lightning.callbacks import BasePredictionWriter
+from lightning.pytorch.callbacks import BasePredictionWriter
 
 from .model import BatchType, ESM2
 
@@ -35,7 +35,7 @@ class PredictionWriter(BasePredictionWriter):
 
     def write_on_batch_end(
         self,
-        trainer: pl.Trainer,
+        trainer: L.Trainer,
         pl_module: ESM2,
         predictions: torch.Tensor,
         batch_indices: Optional[list[int]],
@@ -69,9 +69,7 @@ class PredictionWriter(BasePredictionWriter):
             for name in names:
                 fp.write(f"{name}\n")
 
-    def on_predict_end(
-        self, trainer: "pl.Trainer", pl_module: "pl.LightningModule"
-    ) -> None:
+    def on_predict_end(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
         """Combine all separate batch files into a single file
 
         Args:

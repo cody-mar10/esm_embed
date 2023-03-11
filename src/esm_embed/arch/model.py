@@ -2,7 +2,7 @@ from typing import Literal
 
 import esm
 import torch
-import pytorch_lightning as pl
+import lightning as L
 
 MODELS = {
     "esm2_t48_15B": esm.pretrained.esm2_t48_15B_UR50D,
@@ -23,7 +23,7 @@ MODELVALUES = Literal[
 
 BatchType = tuple[list[str], list[str], torch.Tensor]
 # Prediction only
-class ESM2(pl.LightningModule):
+class ESM2(L.LightningModule):
     def __init__(self, model: esm.ESM2, alphabet: esm.Alphabet) -> None:
         super().__init__()
         self.model = model

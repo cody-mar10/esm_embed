@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Literal
 
 import esm
-import pytorch_lightning as pl
+import lightning as L
 import torch
-from pytorch_lightning.accelerators import find_usable_cuda_devices
+from lightning.pytorch.accelerators import find_usable_cuda_devices
 from torch.utils.data import DataLoader
 
 from esm_embed import arch
@@ -118,7 +118,7 @@ def parse_args() -> Args:
 def main():
     args = parse_args()
     torch.hub.set_dir(args.torch_hub)
-    pl.seed_everything(111)
+    L.seed_everything(111)
 
     model = arch.model.ESM2.from_model_name(args.model)
     data = arch.data.SequenceDataset(
@@ -144,7 +144,7 @@ def main():
     else:
         parallelism_kwargs = {"devices": "auto"}
 
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         enable_checkpointing=False,
         callbacks=[writer],
         accelerator=args.accelerator,
