@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pathlib import Path
 from shutil import copyfileobj, rmtree
 from typing import Callable, Literal, Optional

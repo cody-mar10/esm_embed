@@ -11,8 +11,8 @@ import torch
 from lightning.pytorch.accelerators import find_usable_cuda_devices
 from torch.utils.data import DataLoader
 
-from esm_embed import arch
-from esm_embed.arch.model import MODELS, MODELVALUES
+from . import arch
+from .arch.model import MODELS, MODELVALUES
 
 
 @dataclass

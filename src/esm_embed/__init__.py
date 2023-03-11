@@ -1,2 +1,2 @@
-from esm_embed import arch, utils
-from esm_embed.arch import data, model, writer
+from . import arch, utils
+from .arch import data, model, writer
