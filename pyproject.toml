@@ -15,8 +15,8 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "torch",             # @ https://download.pytorch.org/whl/cpu",
-    "pytorch-lightning",
+    "torch",     # @ https://download.pytorch.org/whl/cpu",
+    "lightning",
     "tables",
     "fair-esm",
     "numpy",
