@@ -1,0 +1,28 @@
+universe = vanilla
+executable = large_run.sh
+arguments = $(checkpoint) $(outdir) $(fasta) $(NCPUS)
+output = $(Cluster)_$(Process).out
+get_env = STAGING, USER
+
+transfer_input_files = esm_embed.py
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+Requirements = (Target.HasCHTCStaging == true)
+
+require_gpus = (DriverVersion >= 11.6)
+request_gpus = 1
+
++WantGPULab = true
++GPUJobLength = "medium"
+
+NCPUS = 8 
+
+request_cpus = $(NCPUS)
+request_memory = 20GB
+request_disk = 110GB
+
+log = $(Cluster)_$(Process).log
+error = $(Cluster)_$(Process).err
+
+queue checkpoint,outdir,fasta from inputs.csv
