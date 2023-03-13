@@ -24,6 +24,7 @@ class Args:
     outdir: Path
     devices: int
     accelerator: Literal["cpu", "gpu", "auto"]
+    precision: Literal[64, 32, 16, "bf16"]
 
 
 def parse_args() -> Args:
@@ -100,6 +101,15 @@ def parse_args() -> Args:
         choices={"cpu", "gpu", "auto"},
         help="type of device to use (default: %(default)s) [choices: %(choices)s]",
     )
+    parser.add_argument(
+        "-p",
+        "--precision",
+        metavar="PRECISION",
+        default=32,
+        choices={64, 32, 16, "bf16"},
+        type=lambda x: int(x) if x.isdigit() else x,
+        help="floating point precision: (deafult: %(default)s) [choices: %(choices)s]",
+    )
 
     args = parser.parse_args()
     return Args(
@@ -110,6 +120,7 @@ def parse_args() -> Args:
         outdir=args.outdir,
         devices=args.devices,
         accelerator=args.accelerator,
+        precision=args.precision,
     )
 
 
@@ -138,8 +149,14 @@ def main():
 
     if args.accelerator == "cpu":
         torch.set_num_threads(args.devices)
+        # half-precision not available on cpus?
+        args.precision = 32
         parallelism_kwargs = {"devices": 1}
     elif args.accelerator == "gpu":
+        # NOTE: this also requires setting the env var CUDA_VISIBLE_DEVICES
+        # to a list of the number of requested devices, ie:
+        # if using 2 GPUs:
+        # export CUDA_VISIBLE_DEVICES="0, 1"
         parallelism_kwargs = {"devices": find_usable_cuda_devices(args.devices)}
     else:
         parallelism_kwargs = {"devices": "auto"}
@@ -149,6 +166,8 @@ def main():
         callbacks=[writer],
         accelerator=args.accelerator,
         logger=False,
+        enable_progress_bar=False,
+        precision=args.precision,
         **parallelism_kwargs,
     )
 
