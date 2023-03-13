@@ -5,6 +5,13 @@ MODEL=$1
 OUTDIR=$2
 FASTA=$3
 
+export CUDA_VISIBLE_DEVICES="0"
+
+echo 'Date: ' `date`
+echo 'Host: ' `hostname`
+echo 'System: ' `uname -spo`
+echo 'GPU: ' `lspci | grep NVIDIA`
+
 set -e
 CHECKPOINT="${MODEL}.tar.gz"
 ENVNAME="esm"
