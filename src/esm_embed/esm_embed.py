@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 
 from . import arch
 from .arch.model import MODELS, MODELVALUES
+from .utils import _skip_prgm_and_command
 
 
 @dataclass
@@ -26,12 +27,21 @@ class Args:
     accelerator: Literal["cpu", "gpu", "auto"]
     precision: Literal[64, 32, 16, "bf16"]
 
+    @classmethod
+    def from_namespace(cls, namespace: argparse.Namespace):
+        return cls(
+            input=namespace.input,
+            model=namespace.model,
+            batch_size=namespace.batch_token_size,
+            torch_hub=namespace.torch_hub,
+            outdir=namespace.outdir,
+            devices=namespace.devices,
+            accelerator=namespace.accelerator,
+            precision=namespace.precision,
+        )
 
-def parse_args() -> Args:
-    parser = argparse.ArgumentParser(
-        description="Embed protein sequences using ESM-2 from Meta AI"
-    )
 
+def _add_args(parser: argparse.ArgumentParser):
     required_args = parser.add_argument_group("REQUIRED")
     model_args = parser.add_argument_group("MODEL")
 
@@ -89,9 +99,8 @@ def parse_args() -> Args:
         "-d",
         "--devices",
         metavar="INT",
-        default=1,
         type=int,
-        help="number of cpus/gpus to use. If using cpus, this will convert to threads on a single cpu node. (default: %(default)s)",
+        help="number of cpus/gpus to use. If using cpus, this will convert to threads on a single cpu node. If using gpus, this will read the request number of gpus from the CUDA_VISIBLE_DEVICES env var. (default: %(default)s)",
     )
     parser.add_argument(
         "-a",
@@ -110,8 +119,15 @@ def parse_args() -> Args:
         type=lambda x: int(x) if x.isdigit() else x,
         help="floating point precision: (deafult: %(default)s) [choices: %(choices)s]",
     )
+    return parser
 
-    args = parser.parse_args()
+
+def parse_args() -> Args:
+    parser = argparse.ArgumentParser(
+        description="Embed protein sequences using ESM-2 from Meta AI"
+    )
+    _add_args(parser)
+    args = parser.parse_args(_skip_prgm_and_command())
     return Args(
         input=args.input,
         model=args.model,
@@ -153,11 +169,15 @@ def main():
         args.precision = 32
         parallelism_kwargs = {"devices": 1}
     elif args.accelerator == "gpu":
-        # NOTE: this also requires setting the env var CUDA_VISIBLE_DEVICES
-        # to a list of the number of requested devices, ie:
-        # if using 2 GPUs:
-        # export CUDA_VISIBLE_DEVICES="0, 1"
-        parallelism_kwargs = {"devices": find_usable_cuda_devices(args.devices)}
+        # NOTE: CUDA_VISIBLE_DEVICES shows what GPUs are available
+        # in shared systems/clusters, this is only assigned with as many GPUs
+        # as requested and shouldn't be edited since that could result in
+        # multiple jobs sharing the same GPU.
+        visible_devices = [
+            gpu.lstrip().rstrip()
+            for gpu in os.environ["CUDA_VISIBLE_DEVICES"].split(",")
+        ]
+        parallelism_kwargs = {"devices": visible_devices[0 : args.devices]}
     else:
         parallelism_kwargs = {"devices": "auto"}
 

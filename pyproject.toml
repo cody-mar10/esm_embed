@@ -23,7 +23,9 @@ dependencies = [
 ]
 
 [project.scripts]
+esm = "esm_embed:cli.main"
 esm_embed = "esm_embed:esm_embed.main"
+esm_concat = "esm_embed:esm_concat.main"
 
 [project.urls]
 "Homepage" = "https://github.com/cody-mar10/esm"

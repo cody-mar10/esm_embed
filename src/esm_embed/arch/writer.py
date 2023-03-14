@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 from shutil import copyfileobj, rmtree
-from typing import Callable, Literal, Optional
+from typing import Literal, Optional
 
 import numpy as np
 import lightning as L
@@ -11,6 +11,7 @@ from numpy.typing import NDArray
 from lightning.pytorch.callbacks import BasePredictionWriter
 
 from .model import BatchType, ESM2
+from ..utils import sort_key, COMPRESSION_FILTER
 
 LAYERS_TO_MODELNAME = {
     6: "esm2_t6_8M",
@@ -30,7 +31,7 @@ class PredictionWriter(BasePredictionWriter):
     ) -> None:
         super().__init__(write_interval)
         self.outdir = outdir
-        self.compression = tb.Filters(complib="blosc:lz4", complevel=4)
+        self.compression = COMPRESSION_FILTER
         self.dataset_prefix = "dataset"
         self.batch_prefix = "batch"
 
@@ -79,21 +80,18 @@ class PredictionWriter(BasePredictionWriter):
         """
         super().on_predict_end(trainer, pl_module)
 
-        sortkey: Callable[[Path], int] = lambda x: int(
-            x.name.split(".")[0].rsplit("_", 1)[1]
-        )
         dataset_paths = sorted(
-            self.outdir.glob(f"*{self.dataset_prefix}*/"), key=sortkey
+            self.outdir.glob(f"*{self.dataset_prefix}*/"), key=sort_key
         )
         data_paths = {
             dataset_path: sorted(
-                dataset_path.glob(f"*{self.batch_prefix}*.h5"), key=sortkey
+                dataset_path.glob(f"*{self.batch_prefix}*.h5"), key=sort_key
             )
             for dataset_path in dataset_paths
         }
         name_paths = {
             dataset_path: sorted(
-                dataset_path.glob(f"*{self.batch_prefix}*.txt"), key=sortkey
+                dataset_path.glob(f"*{self.batch_prefix}*.txt"), key=sort_key
             )
             for dataset_path in dataset_paths
         }
