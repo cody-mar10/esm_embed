@@ -8,12 +8,11 @@ from typing import Literal
 import esm
 import lightning as L
 import torch
-from lightning.pytorch.accelerators import find_usable_cuda_devices
 from torch.utils.data import DataLoader
 
 from . import arch
 from .arch.model import MODELS, MODELVALUES
-from .utils import _skip_prgm_and_command, chtc_utils
+from .utils import _skip_prgm_and_command
 
 
 @dataclass
@@ -169,29 +168,14 @@ def main():
         args.precision = 32
         parallelism_kwargs = {"devices": 1}
     elif args.accelerator == "gpu":
-        # NOTE: CUDA_VISIBLE_DEVICES shows what GPUs are available
+        # NOTE: CUDA_VISIBLE_DEVICES shows what GPUs are available / have been assigned
         # in shared systems/clusters, this is only assigned with as many GPUs
         # as requested and shouldn't be edited since that could result in
         # multiple jobs sharing the same GPU.
-        # CHTC = CUDA_VISIBLE_DEVICES assigned UUID
-        # can map GPU UUID to device no using nvidia-smi -L
-        # example output:
-        # GPU 0: NVIDIA A100-SXM4-80GB (UUID: GPU-053b14fc-1ed2-3761-5d42-b3b824feb7d6)
-        # GPU 1: NVIDIA A100-SXM4-80GB (UUID: GPU-1f9fc54e-ce03-79a8-c2ab-4144eb36f0ba)
-        # GPU 2: NVIDIA A100-SXM4-80GB (UUID: GPU-ff708371-0893-0d85-ae2b-0810d095e111)
-        # GPU 3: NVIDIA A100-SXM4-80GB (UUID: GPU-7067f38b-b4c2-5568-ec82-f698473ddd07)
-        # the assigned GPU IDs would be: "GPU-053b14fc"
-
-        visible_devices = chtc_utils.get_visible_devices()
-
-        # CHTC only makes visible as many devices as requested
-        assert (
-            len(visible_devices) == args.devices
-        ), f"Number of requested GPUs ({args.devices}) does not match the available number of GPUs ({len(visible_devices)})"
-
-        gpu_name_to_gpu_device_no = chtc_utils.map_gpu_ids()
-        devices = [gpu_name_to_gpu_device_no[gpu] for gpu in visible_devices]
-        parallelism_kwargs = {"devices": devices}
+        # In CHTC, rather than setting this to device number, it sets it to the device
+        # UUID, which pytorch 1.13 cannot interpret. For now, torch 1.12.1 works fine,
+        # but #TODO: this is supposed to be fixed in torch v2
+        parallelism_kwargs = {"devices": args.devices}
     else:
         parallelism_kwargs = {"devices": "auto"}
 

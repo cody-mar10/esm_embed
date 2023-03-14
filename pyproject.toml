@@ -14,13 +14,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
 ]
-dependencies = [
-    "torch",     # @ https://download.pytorch.org/whl/cpu",
-    "lightning",
-    "tables",
-    "fair-esm",
-    "numpy",
-]
+dependencies = ["torch=1.12.1", "lightning", "tables", "fair-esm"]
 
 [project.scripts]
 esm = "esm_embed:cli.main"
