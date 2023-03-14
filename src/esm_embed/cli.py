@@ -7,12 +7,12 @@ from . import esm_concat, esm_embed
 from .utils import _HelpAction
 
 
-class Mode:
+class Mode(Enum):
     EMBED = auto()
     CONCAT = auto()
 
 
-def parse_args() -> int:
+def parse_args() -> Mode:
     parser = argparse.ArgumentParser(
         "ESM utilities for inference and post processing", add_help=False
     )
