@@ -1,0 +1,88 @@
+000 (16812255.007.000) 2023-03-13 11:56:31 Job submitted from host: <128.105.244.191:9618?addrs=128.105.244.191-9618&alias=submit-1.chtc.wisc.edu&noUDP&sock=schedd_6485_bfc3>
+...
+040 (16812255.007.000) 2023-03-13 15:05:29 Started transferring input files
+	Transferring to host: <128.105.68.103:9618?addrs=128.105.68.103-9618+[2607-f388-2200-100-1270-fdff-fe74-930]-9618&alias=gpu2011.chtc.wisc.edu&noUDP&sock=slot1_1_158545_0b88_79967>
+...
+040 (16812255.007.000) 2023-03-13 15:05:29 Finished transferring input files
+...
+001 (16812255.007.000) 2023-03-13 15:05:30 Job executing on host: <128.105.68.103:9618?addrs=128.105.68.103-9618+[2607-f388-2200-100-1270-fdff-fe74-930]-9618&alias=gpu2011.chtc.wisc.edu&noUDP&sock=startd_158342_0528>
+...
+006 (16812255.007.000) 2023-03-13 15:05:39 Image size of job updated: 38908
+	1  -  MemoryUsage of job (MB)
+	684  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 15:10:40 Image size of job updated: 11274568
+	2493  -  MemoryUsage of job (MB)
+	2552480  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 15:20:41 Image size of job updated: 11277428
+	2496  -  MemoryUsage of job (MB)
+	2555304  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 15:25:42 Image size of job updated: 11282548
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 15:35:44 Image size of job updated: 11380852
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 15:40:44 Image size of job updated: 11577460
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 15:50:44 Image size of job updated: 12232820
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 15:55:45 Image size of job updated: 12363892
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 16:05:47 Image size of job updated: 13805684
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 16:10:48 Image size of job updated: 18524276
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 16:15:48 Image size of job updated: 39102580
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 16:20:48 Image size of job updated: 90089588
+	2501  -  MemoryUsage of job (MB)
+	2560656  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 16:25:49 Image size of job updated: 90089588
+	4086  -  MemoryUsage of job (MB)
+	4183312  -  ResidentSetSize of job (KB)
+...
+006 (16812255.007.000) 2023-03-13 16:28:58 Image size of job updated: 90089588
+	4099  -  MemoryUsage of job (MB)
+	4196856  -  ResidentSetSize of job (KB)
+...
+040 (16812255.007.000) 2023-03-13 16:28:58 Started transferring output files
+...
+040 (16812255.007.000) 2023-03-13 16:28:58 Finished transferring output files
+...
+005 (16812255.007.000) 2023-03-13 16:28:58 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 01:20:19, Sys 0 00:01:11  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 01:20:19, Sys 0 00:01:11  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	1187  -  Run Bytes Sent By Job
+	762  -  Run Bytes Received By Job
+	1187  -  Total Bytes Sent By Job
+	762  -  Total Bytes Received By Job
+	Partitionable Resources :       Usage  Request Allocated Assigned
+	   Cpus                 :        1.01        1         1 
+	   Disk (KB)            : 13303132    52428800  60670278 
+	   Gpus (Average)       :                    1         1 "GPU-ab7faecb"
+	   IoHeavy              :                              0 
+	   Memory (MB)          :     4099       20480     20480 
+
+	Job terminated of its own accord at 2023-03-13T21:28:58Z with exit-code 0.
+...

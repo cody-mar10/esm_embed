@@ -1,0 +1,5 @@
+Date:  Tue Mar 14 23:46:43 CDT 2023
+Host:  gpu2010
+System:  Linux x86_64 GNU/Linux
+CUDA_VISIBLE_DEVICES:  GPU-bc79ed29
+Gpu:  GPU 3: NVIDIA A100-SXM4-80GB (UUID: GPU-bc79ed29-9159-3de8-bb7a-dc596d8999e6)

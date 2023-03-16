@@ -1,0 +1,5 @@
+Date:  Tue Mar 14 23:38:15 CDT 2023
+Host:  gpu2011
+System:  Linux x86_64 GNU/Linux
+CUDA_VISIBLE_DEVICES:  GPU-e8e49ede
+Gpu:  GPU 2: NVIDIA A100-SXM4-80GB (UUID: GPU-e8e49ede-3a80-101e-c3a3-3becfc6e92c0)

@@ -5,12 +5,11 @@ MODEL=$1
 OUTDIR=$2
 FASTA=$3
 
-export CUDA_VISIBLE_DEVICES="0"
-
 echo 'Date: ' `date`
 echo 'Host: ' `hostname`
 echo 'System: ' `uname -spo`
-echo 'GPU: ' `lspci | grep NVIDIA`
+echo 'CUDA_VISIBLE_DEVICES: ' $CUDA_VISIBLE_DEVICES
+echo 'Gpu: ' `nvidia-smi -L | grep $CUDA_VISIBLE_DEVICES`
 
 set -e
 CHECKPOINT="${MODEL}.tar.gz"
@@ -34,7 +33,7 @@ tar -xzf $TARBALL -C $ENVDIR
 rm $TARBALL
 
 ##### run tool
-esm_embed -i $FASTA -th . -b 1024 -o $OUTDIR -m $MODEL -a gpu
+esm_embed -i $FASTA -th . -b 1024 -o $OUTDIR -m $MODEL -a auto
 
 ##### cleanup
 rm $FASTA

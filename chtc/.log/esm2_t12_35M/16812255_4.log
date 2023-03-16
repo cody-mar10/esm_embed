@@ -1,0 +1,92 @@
+000 (16812255.004.000) 2023-03-13 11:56:31 Job submitted from host: <128.105.244.191:9618?addrs=128.105.244.191-9618&alias=submit-1.chtc.wisc.edu&noUDP&sock=schedd_6485_bfc3>
+...
+040 (16812255.004.000) 2023-03-13 14:49:36 Started transferring input files
+	Transferring to host: <128.105.68.101:9618?addrs=128.105.68.101-9618+[2607-f388-2200-100-1270-fdff-fe73-97d6]-9618&alias=gpu2009.chtc.wisc.edu&noUDP&sock=slot1_2_1877356_e2af_91758>
+...
+040 (16812255.004.000) 2023-03-13 14:49:36 Finished transferring input files
+...
+001 (16812255.004.000) 2023-03-13 14:49:37 Job executing on host: <128.105.68.101:9618?addrs=128.105.68.101-9618+[2607-f388-2200-100-1270-fdff-fe73-97d6]-9618&alias=gpu2009.chtc.wisc.edu&noUDP&sock=startd_27480_92a2>
+...
+006 (16812255.004.000) 2023-03-13 14:49:46 Image size of job updated: 38908
+	1  -  MemoryUsage of job (MB)
+	676  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 14:54:48 Image size of job updated: 11272868
+	2490  -  MemoryUsage of job (MB)
+	2549400  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 14:59:48 Image size of job updated: 11273392
+	2491  -  MemoryUsage of job (MB)
+	2550012  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:04:49 Image size of job updated: 11276004
+	2493  -  MemoryUsage of job (MB)
+	2552532  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:09:49 Image size of job updated: 11281124
+	2498  -  MemoryUsage of job (MB)
+	2557652  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:14:49 Image size of job updated: 11281124
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:19:50 Image size of job updated: 11379428
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:24:50 Image size of job updated: 11576036
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:29:51 Image size of job updated: 11707108
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:34:52 Image size of job updated: 12362468
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:44:54 Image size of job updated: 12755684
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:49:55 Image size of job updated: 17474276
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:54:55 Image size of job updated: 92447460
+	2498  -  MemoryUsage of job (MB)
+	2557660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 15:59:56 Image size of job updated: 92447460
+	4506  -  MemoryUsage of job (MB)
+	4613660  -  ResidentSetSize of job (KB)
+...
+006 (16812255.004.000) 2023-03-13 16:01:57 Image size of job updated: 92447460
+	4510  -  MemoryUsage of job (MB)
+	4617564  -  ResidentSetSize of job (KB)
+...
+040 (16812255.004.000) 2023-03-13 16:01:58 Started transferring output files
+...
+040 (16812255.004.000) 2023-03-13 16:01:58 Finished transferring output files
+...
+005 (16812255.004.000) 2023-03-13 16:01:59 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 01:09:28, Sys 0 00:01:08  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 01:09:28, Sys 0 00:01:08  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	1189  -  Run Bytes Sent By Job
+	762  -  Run Bytes Received By Job
+	1189  -  Total Bytes Sent By Job
+	762  -  Total Bytes Received By Job
+	Partitionable Resources :       Usage  Request Allocated Assigned
+	   Cpus                 :        0.98        1         1 
+	   Disk (KB)            : 13269467    52428800  55919702 
+	   Gpus (Average)       :                    1         1 "GPU-ca0657f5"
+	   IoHeavy              :                              0 
+	   Memory (MB)          :     4510       20480     20480 
+
+	Job terminated of its own accord at 2023-03-13T21:01:57Z with exit-code 0.
+...

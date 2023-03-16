@@ -1,0 +1,5 @@
+Date:  Wed Mar 15 10:19:38 CDT 2023
+Host:  gpu2007
+System:  Linux x86_64 GNU/Linux
+CUDA_VISIBLE_DEVICES:  GPU-c88dc69f
+Gpu:  GPU 3: NVIDIA A100-SXM4-80GB (UUID: GPU-c88dc69f-5e3f-eef2-d2fb-cfb501937ead)

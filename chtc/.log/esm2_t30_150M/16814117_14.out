@@ -1,0 +1,5 @@
+Date:  Wed Mar 15 05:11:35 CDT 2023
+Host:  gpu2011
+System:  Linux x86_64 GNU/Linux
+CUDA_VISIBLE_DEVICES:  GPU-ab7faecb
+Gpu:  GPU 0: NVIDIA A100-SXM4-80GB (UUID: GPU-ab7faecb-b94b-0144-ee1d-f32bb33e06b5)

@@ -1,0 +1,5 @@
+Date:  Wed Mar 15 12:40:30 CDT 2023
+Host:  gpu2004
+System:  Linux x86_64 GNU/Linux
+CUDA_VISIBLE_DEVICES:  GPU-9889ee48
+Gpu:  GPU 0: NVIDIA A100-SXM4-80GB (UUID: GPU-9889ee48-b566-be7b-fc68-9e80acce7a76)
