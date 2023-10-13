@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 from itertools import chain
 
 import esm
 import torch
 from torch.utils.data import Dataset
 
-from .model import BatchType
+from esm_embed.arch.model import BatchType
 
 
 class SequenceDataset(Dataset):
