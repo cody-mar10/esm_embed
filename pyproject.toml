@@ -9,22 +9,27 @@ authors = [{ name = "Cody Martin", email = "codycmar10@gmail.com" }]
 description = "Using ESM2 models for inference"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
     "torch>=2",
+    "transformers",
     "lightning",
     "tables",
     "fair-esm",
+    "numpy<2.0",
     "pydantic>=2,<2.1",
     "pydantic-argparse @ git+https://github.com/cody-mar10/pydantic-argparse.git",
 ]
 
 [project.scripts]
-esm_embed = "esm_embed:esm_embed.main"
+esm-embed = "esm_embed:esm_embed.main"
+
+[project.optional-dependencies]
+h5 = ["tables"]
 
 [project.urls]
 "Homepage" = "https://github.com/cody-mar10/esm"
