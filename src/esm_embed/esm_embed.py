@@ -95,6 +95,9 @@ def main():
         collate_fn=arch.data.collate_token_batches,
     )
 
+    if args.trainer.accelerator == "auto":
+        args.trainer.accelerator = "gpu" if torch.cuda.is_available() else "cpu"
+
     if args.trainer.accelerator == "cpu":
         torch.set_num_threads(args.trainer.devices)
         args.trainer.precision = 32
