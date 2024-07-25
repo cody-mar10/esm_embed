@@ -3,3 +3,4 @@ dist/
 *.egg-info
 test/
 .mypy_cache/
+build/
