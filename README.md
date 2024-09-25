@@ -2,7 +2,7 @@
 
 Generating [ESM2](https://github.com/facebookresearch/esm) protein embeddings. The ESM team has provided a utility script to do this (`esm-extract`) that was not originally available when we made this repository.
 
-**Note**: We are planning to integrate this into the overall [Protein Set Transformer](https://github.com/AnantharamanLab/protein_set_transformer) workflow for an end-to-end pipeline to convert protein FASTA files to protein embeddings to genome embeddings.
+**Note**: We have integrated this into the overall [Protein Set Transformer](https://github.com/AnantharamanLab/protein_set_transformer) workflow for an end-to-end pipeline to convert protein FASTA files to protein embeddings to genome embeddings. This repository is archived for reproducibility into the history of the PST paper.
 
 ## Installation
 
